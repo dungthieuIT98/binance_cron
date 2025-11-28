@@ -1,89 +1,81 @@
-import ccxt
-import time
+import requests
 from datetime import datetime
 
 # Danh sách symbols cần theo dõi
 SYMBOLS = [
-    "BTC/USDT",
-    "ETH/USDT",
-    "XRP/USDT",
-    "BNB/USDT",
-    "SOL/USDT",
-    "TRX/USDT",
-    "DOGE/USDT",
-    "ADA/USDT",
-    "BCH/USDT",
-    "LINK/USDT",
-    "XLM/USDT"
+    "BTC",
+    "ETH",
+    "XRP",
+    "BNB",
+    "SOL",
+    "TRX",
+    "DOGE",
+    "ADA",
+    "BCH",
+    "LINK",
+    "XLM"
 ]
-
-
-# Backup: Dùng các sàn khác không bị chặn
-bybit = ccxt.bybit({
-    'enableRateLimit': True,
-    'options': {
-        'defaultType': 'spot',
-    }
-})
-
-okx = ccxt.okx({
-    'enableRateLimit': True,
-})
 
 def fetch_klines(symbol: str, interval: str = '1d', limit: int = 500):
     """
-    Lấy dữ liệu klines từ nhiều sàn (fallback nếu 1 sàn lỗi)
+    Lấy dữ liệu klines từ CryptoCompare API và trả về list of dicts.
+    Mỗi dict gồm: timestamp, open, high, low, close, volume, symbol
+    Hỗ trợ các interval: 1h, 4h, 1d
     """
     
-    if limit > 1000:
-        limit = 1000
+    # Map interval sang endpoint và aggregate value
+    if interval == '1h':
+        endpoint = 'histohour'
+        aggregate = 1
+    elif interval == '4h':
+        endpoint = 'histohour'
+        aggregate = 4
+    elif interval == '1d':
+        endpoint = 'histoday'
+        aggregate = 1
+    else:
+        endpoint = 'histohour'
+        aggregate = 1
     
-    # Thử các exchange theo thứ tự ưu tiên: Binance -> Bybit -> OKX
-    exchanges_to_try = []
-    exchanges_to_try.extend([('bybit', bybit), ('okx', okx)])
+    base_url = f"https://min-api.cryptocompare.com/data/v2/{endpoint}"
     
-    last_error = None
+    params = {
+        'fsym': symbol,
+        'tsym': 'USDT',
+        'limit': limit,
+        'aggregate': aggregate
+    }
     
-    for exchange_name, exchange in exchanges_to_try:
-        if not exchange:
-            continue
-            
-        try:
-            # Lấy dữ liệu OHLCV
-            ohlcv = exchange.fetch_ohlcv(symbol, timeframe=interval, limit=limit)
-            
-            # Chuyển đổi sang format mong muốn
-            result = []
-            for candle in ohlcv:
-                result.append({
-                    'timestamp': datetime.fromtimestamp(candle[0] / 1000).strftime('%Y-%m-%d %H:%M:%S'),
-                    'open': float(candle[1]),
-                    'high': float(candle[2]),
-                    'low': float(candle[3]),
-                    'close': float(candle[4]),
-                    'volume': float(candle[5]),
-                    'symbol': symbol.replace('/', '')
-                })
-            
-            return result
-            
-        except ccxt.BadSymbol:
-            # Symbol không tồn tại trên sàn này, thử sàn khác
-            last_error = f"Symbol không hợp lệ trên {exchange_name}"
-            continue
-        except ccxt.NetworkError as e:
-            last_error = f"Lỗi mạng: {e}"
-            continue
-        except ccxt.ExchangeError as e:
-            last_error = f"Lỗi exchange: {e}"
-            # Nếu là lỗi 451 (geo-blocking), thử sàn khác
-            if "451" in str(e):
-                print(f"⚠️ {exchange_name.upper()} bị chặn (451), thử sàn khác...")
-                continue
-            continue
-        except Exception as e:
-            last_error = f"Lỗi không xác định: {e}"
-            continue
-    
-    # Nếu tất cả sàn đều fail
-    return []
+    try:
+        response = requests.get(base_url, params=params, timeout=30)
+        response.raise_for_status()
+        data = response.json()
+        
+        raw_data = data['Data']['Data']
+        
+        # Chuyển đổi sang format mong muốn
+        result = []
+        for candle in raw_data:
+            result.append({
+                'timestamp': datetime.fromtimestamp(candle['time']).strftime('%Y-%m-%d %H:%M:%S'),
+                'open': float(candle['open']),
+                'high': float(candle['high']),
+                'low': float(candle['low']),
+                'close': float(candle['close']),
+                'volume': float(candle['volumeto']),  # Volume in USDT
+                'symbol': symbol + 'USDT'
+            })
+        return result
+        
+    except requests.exceptions.Timeout:
+        print(f" Timeout khi lấy dữ liệu {symbol}")
+        return []
+    except requests.exceptions.RequestException as e:
+        print(f" Lỗi request cho {symbol}: {e}")
+        return []
+    except KeyError as e:
+        print(f" Lỗi parse data cho {symbol}: {e}")
+        return []
+    except Exception as e:
+        print(f" Lỗi không xác định cho {symbol}: {e}")
+        return []
