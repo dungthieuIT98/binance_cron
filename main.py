@@ -16,7 +16,6 @@ def job(symbol, interval_name, interval_str, limit):
     
     while True:
         try:
-            print(f"\n🔄 Đang xử lý {symbol}...")
             klines = fetch_klines(symbol, interval_str, limit)
             processed_data = process_file(klines)
             message = get_trend_label(processed_data)
@@ -34,7 +33,6 @@ def job(symbol, interval_name, interval_str, limit):
                     completed_count = 0  # Reset
                 
         except Exception as e:
-            print(f"❌ Lỗi xử lý {symbol}: {e}")
             import traceback
             traceback.print_exc() 
         
@@ -55,7 +53,6 @@ def send_aggregated_report_once():
     
     # Gửi telegram nếu có ít nhất 1 tín hiệu
     if aggregated_message.count('\n') > 3:
-        print("\n" + aggregated_message)
         tele_notification(aggregated_message)
 
 if __name__ == "__main__":
