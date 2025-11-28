@@ -23,7 +23,6 @@ def job(symbol, interval_name, interval_str, limit):
             # 2. Xử lý và tính toán các chỉ báo
             processed_data = process_file(klines)
             message = get_trend_label(processed_data)
-            
             # 3. Lưu kết quả vào shared dict (thread-safe)
             with results_lock:
                 results[symbol] = {
