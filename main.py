@@ -73,7 +73,7 @@ def job(symbol, interval_name, interval_str, limit):
 
 def send_aggregated_report_once():
 
-    aggregated_message = f"BÁO CÁO TỔNG HỢP NGÀY {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
+    aggregated_message = f"📊BÁO CÁO TỔNG HỢP NGÀY {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
     aggregated_message += "="*40 + "\n"
     
     for symbol in SYMBOLS:
@@ -95,7 +95,7 @@ if __name__ == "__main__":
     try:
         while True:
             sleep_seconds, next_run = get_next_run_time()
-            #time.sleep(sleep_seconds + 5)
+            time.sleep(sleep_seconds + 5)
 
             # Khởi động thread cho mỗi symbol
             threads = []
