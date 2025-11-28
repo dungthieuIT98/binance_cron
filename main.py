@@ -9,21 +9,18 @@ SLEEP_INTERVAL = 4 * 60 * 60  # 4h = 14400 giây
 
 results = {}
 results_lock = threading.Lock()
-completed_count = 0
+completed_count = 0  # ĐÃ SỬA: Phải khai báo ở ngoài function
 
 def job(symbol, interval_name, interval_str, limit):
-    """Job chạy định kỳ để lấy và xử lý dữ liệu"""
-    global completed_count
+    global completed_count  # ĐÃ SỬA: Phải khai báo global
     
     while True:
-        message = ""
         try:
-            # 1. Lấy dữ liệu từ Binance
+            print(f"\n🔄 Đang xử lý {symbol}...")
             klines = fetch_klines(symbol, interval_str, limit)
-            # 2. Xử lý và tính toán các chỉ báo
             processed_data = process_file(klines)
             message = get_trend_label(processed_data)
-            # 3. Lưu kết quả vào shared dict (thread-safe)
+            
             with results_lock:
                 results[symbol] = {
                     "message": message,
@@ -32,39 +29,34 @@ def job(symbol, interval_name, interval_str, limit):
                 }
                 completed_count += 1
                 
-                # Nếu đủ số lượng symbols, gửi tổng hợp
                 if completed_count == len(SYMBOLS):
-                    send_aggregated_report()
+                    send_aggregated_report_once()
                     completed_count = 0  # Reset
-        
+                
         except Exception as e:
+            print(f"❌ Lỗi xử lý {symbol}: {e}")
             import traceback
-            traceback.print_exc()
-            
-            with results_lock:
-                results[symbol] = {
-                    "message": f"",
-                    "timestamp": datetime.now(),
-                    "interval": interval_name
-                }
-                completed_count += 1
-
-        # Chờ trước khi chạy lần tiếp theo
+            traceback.print_exc() 
+        
         time.sleep(SLEEP_INTERVAL)
 
-def send_aggregated_report():
+def send_aggregated_report_once():
+    """Gửi báo cáo tổng hợp 1 lần (được gọi từ job)"""
+    # ĐÃ SỬA: Không cần lock vì đã được gọi trong lock rồi
     aggregated_message = "📊 BÁO CÁO TỔNG HỢP\n"
     aggregated_message += f"⏰ {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
     aggregated_message += "="*40 + "\n"
+    
     for symbol in SYMBOLS:
         if symbol in results:
             r = results[symbol]
             if r['message']:
                 aggregated_message += f"{r['message']}"
     
-    # Gửi telegram
-    print("\n" + aggregated_message)
-    tele_notification(aggregated_message)
+    # Gửi telegram nếu có ít nhất 1 tín hiệu
+    if aggregated_message.count('\n') > 3:
+        print("\n" + aggregated_message)
+        tele_notification(aggregated_message)
 
 if __name__ == "__main__":
     for symbol in SYMBOLS:
@@ -74,6 +66,8 @@ if __name__ == "__main__":
             daemon=True
         )
         t.start()
+        time.sleep(1)  # Delay nhỏ giữa các thread để tránh rate limit
+    
     # Giữ main thread alive
     try:
         while True:

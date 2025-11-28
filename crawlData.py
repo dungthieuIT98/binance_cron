@@ -1,40 +1,46 @@
-import csv
-import pandas as pd
-from datetime import datetime, timedelta, timezone
-import requests
-import os
+import ccxt
+from datetime import datetime
 
-API_URL = "https://api.binance.com/api/v3/klines"
 SYMBOLS = [
-  "BTCUSDT",
-  "ETHUSDT",
-  "XRPUSDT",
-  "BNBUSDT",
-  "SOLUSDT",
-  "TRXUSDT",
-  "DOGEUSDT",
-  "ADAUSDT",
-  "BCHUSDT",
-  "LINKUSDT",
-  "XLMUSDT"
+    "BTC/USDT",
+    "ETH/USDT",
+    "XRP/USDT",
+    "BNB/USDT",
+    "SOL/USDT",
+    "TRX/USDT",
+    "DOGE/USDT",
+    "ADA/USDT",
+    "BCH/USDT",
+    "LINK/USDT",
+    "XLM/USDT"
 ]
-def fetch_klines(symbol: str, interval: str, limit: int):
-    """Lấy dữ liệu klines từ Binance và trả về list of dicts"""
-    params = {
-        "symbol": symbol,
-        "interval": interval,
-        "limit": limit
+
+# Khởi tạo exchange
+exchange = ccxt.binance({
+    'enableRateLimit': True,  # Tự động xử lý rate limit
+    'options': {
+        'defaultType': 'spot',
     }
-    response = requests.get(API_URL, params=params, timeout=10)
-    response.raise_for_status()
-    data = response.json()
-    
-    columns = [
-        "open_time", "open", "high", "low", "close", "volume",
-        "close_time", "quote_asset_vol", "num_trades",
-        "taker_buy_vol", "taker_buy_quote_vol", "ignore"
-    ]
-    df = pd.DataFrame(data, columns=columns)
-    df["symbol"] = symbol
-    
-    return df.to_dict('records')
+})
+
+def fetch_klines(symbol: str, interval: str = '1d', limit: int = 500):
+    """
+    Lấy dữ liệu klines (OHLCV) từ Binance qua thư viện ccxt và trả về list of dicts.
+    Mỗi dict gồm: timestamp, open, high, low, close, volume, symbol
+    Hỗ trợ các interval: 1m, 5m, 15m, 30m, 1h, 2h, 4h, 1d
+    """
+    # Lấy dữ liệu OHLCV
+    ohlcv = exchange.fetch_ohlcv(symbol, timeframe=interval, limit=limit)
+    # Chuyển đổi sang format mong muốn
+    result = []
+    for candle in ohlcv:
+        result.append({
+            'timestamp': datetime.fromtimestamp(candle[0] / 1000).strftime('%Y-%m-%d %H:%M:%S'),
+            'open': float(candle[1]),
+            'high': float(candle[2]),
+            'low': float(candle[3]),
+            'close': float(candle[4]),
+            'volume': float(candle[5]),
+            'symbol': symbol.replace('/', '')  # BTC/USDT -> BTCUSDT
+        })
+    return result

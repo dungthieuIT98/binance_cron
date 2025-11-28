@@ -127,10 +127,10 @@ def calculate_macd(prices):
 def process_file(data, periods=(20, 50, 90)):
     """Tính EMA, RSI, MACD trên dữ liệu trong memory, không ghi CSV"""
     if not data or "close" not in data[0]:
+        print("Dữ liệu không hợp lệ hoặc thiếu cột 'close'")
         return data  # Return data ngay cả khi không xử lý được
 
     closes = [float(r["close"]) for r in data]
-
     ema = {p: calculate_ema(closes, p) for p in periods}
     rsi = calculate_rsi(closes)
     macd, sig, hist = calculate_macd(closes)
