@@ -6,7 +6,8 @@ from crawlData import fetch_klines, SYMBOLS
 from calculateData import process_file, get_trend_label
 from notify import tele_notification
 
-SLEEP_INTERVAL = 4 * 60 * 60 - 2  # 4h = 14400 giây
+#SLEEP_INTERVAL = 4 * 60 * 60 - 2  # 4h = 14400 giây
+SLEEP_INTERVAL = 60 - 2  # 4h = 14400 giây
 
 results = {}
 results_lock = threading.Lock()
@@ -95,7 +96,7 @@ if __name__ == "__main__":
     try:
         while True:
             sleep_seconds, next_run = get_next_run_time()
-            time.sleep(sleep_seconds)
+            # time.sleep(sleep_seconds)
 
             # Khởi động thread cho mỗi symbol
             threads = []
