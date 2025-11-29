@@ -1,0 +1,18 @@
+sudo dnf install git -y
+git clone https://github.com/dungthieuIT98/binance_cron.git
+
+python3 -m venv venv
+source venv/bin/activate
+
+pip install --upgrade pip
+pip install -r requirements.txt
+
+=> chạy nền ứng dụng
+nohup python3 main.py > output.log 2>&1 &
+
+=> kiểm tra chạy nền 
+ps aux | grep main.py
+tail -f output.log
+ 
+ => KILL TIẾN TRÌNH 
+kill -9 27808
