@@ -60,28 +60,24 @@ def send_aggregated_report_once():
     else:
         print("\n Không có dữ liệu để gửi trong báo cáo tổng hợp")
 
-
 if __name__ == "__main__":
-
-    print(" Bắt đầu hệ thống theo dõi crypto...")
+    print("Bắt đầu hệ thống theo dõi crypto...")
+    
     try:
-        while True:
-            # Khởi động thread cho mỗi symbol
-            threads = []
-            for symbol in SYMBOLS:
-                t = threading.Thread(
-                    target=job,
-                    args=(symbol, "4h", "4h", 300),
-                    daemon=False  
-                )
-              
-                t.start()
-                threads.append(t)
-                time.sleep(1)
+        threads = []
+        for symbol in SYMBOLS:
+            t = threading.Thread(
+                target=job,
+                args=(symbol, "4h", "4h", 300),
+                daemon=False  
+            )
+            t.start()
+            threads.append(t)
+            time.sleep(1)
 
-            # Chờ tất cả thread hoàn thành
-            for t in threads:
-                t.join()
-
+        # Chỉ cần join một lần, threads sẽ chạy mãi mãi
+        for t in threads:
+            t.join()
+            
     except KeyboardInterrupt:
-        print("\n Đang dừng hệ thống...")
+        print("\nĐang dừng hệ thống...")
