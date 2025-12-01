@@ -21,7 +21,7 @@ def job(symbol, interval_name, interval_str, limit):
             print(f"\n Đang xử lý {symbol}...")
             klines = fetch_klines(symbol, interval_str, limit)
             
-            processed_data = process_file(klines)
+            processed_data = process_file(klines, symbol)
             message = get_trend_label(processed_data)
             
             with results_lock:
@@ -68,7 +68,7 @@ if __name__ == "__main__":
         for symbol in SYMBOLS:
             t = threading.Thread(
                 target=job,
-                args=(symbol, "4h", "4h", 300),
+                args=(symbol, "4h", "4h", 200),
                 daemon=False  
             )
             t.start()

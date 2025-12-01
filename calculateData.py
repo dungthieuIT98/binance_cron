@@ -1,14 +1,13 @@
-MAX_ROWS_PER_SYMBOL = 300
-EMA_PERIODS = (20, 50, 90)
-RSI_PERIOD = 14
-VOLUME_RATIO_PERIOD = 14
+import pandas as pd
 
+RSI_PERIOD = 14
 def get_trend_label(data):
     # Kiểm tra nến cuối có trend_score không
     last_candle = data[-1]
     # Lấy symbol và current score
     symbol = last_candle.get("symbol", "N/A")
     current_score = last_candle["trend_score"]
+    current_rsi = last_candle.get("rsi14", "N/A")
     # Lấy danh sách old_scores của 6 ngày trước (từ -7 đến -2)
     old_scores = []
     for i in range(7, 1, -1): 
@@ -34,9 +33,12 @@ def get_trend_label(data):
     else:
         return ""  # Không có xu hướng rõ ràng
     
+    if current_rsi > 70 or current_rsi < 30:
+        label += f"\nCảnh báo RSI: {current_rsi}"
+
     # Format message với danh sách old_scores
     old_scores_str = ",".join(old_scores) if old_scores else ""
-    return f"{symbol}: {label} ==> History: {old_scores_str},{current_score}\n"
+    return f"{symbol}: {label} \n ==> History: {old_scores_str},{current_score}\n"
 
  
 def score_trend(ema20, ema50, ema90, rsi, macd, signal):
@@ -121,7 +123,7 @@ def calculate_macd(prices):
     hist = [a - b for a, b in zip(macd[-len(signal):], signal)] if signal else []
     return macd, signal, hist
 
-def process_file(data, periods=(20, 50, 90)):
+def process_file(data, symbol, periods=(20, 50, 90)):
     """Tính EMA, RSI, MACD trên dữ liệu trong memory, không ghi CSV"""
     if not data or "close" not in data[0]:
         print("Dữ liệu không hợp lệ hoặc thiếu cột 'close'")

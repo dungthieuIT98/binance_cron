@@ -5,18 +5,12 @@ from datetime import datetime
 SYMBOLS = [
     "BTC",
     "ETH",
-    "XRP",
     "BNB",
     "SOL",
-    "TRX",
-    "DOGE",
-    "ADA",
-    "BCH",
-    "LINK",
-    "XLM"
+    "LINK"
 ]
 
-def fetch_klines(symbol: str, interval: str = '1d', limit: int = 500):
+def fetch_klines(symbol: str, interval: str = '1d', limit: int = 200):
     """
     Lấy dữ liệu klines từ CryptoCompare API và trả về list of dicts.
     Mỗi dict gồm: timestamp, open, high, low, close, volume, symbol
