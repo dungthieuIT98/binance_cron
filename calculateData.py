@@ -23,13 +23,13 @@ def get_trend_label(data):
     except:
         return ""
     
-    if score_value >= 8:
+    if score_value >= 5:
         label = "UPTREND mạnh"
-    elif score_value >= 5:
+    elif score_value >= 3:
         label = "Uptrend yếu"
-    elif score_value <= -8:
+    elif score_value <= -5:
         label = "DOWNTREND mạnh"
-    elif score_value <= -4:
+    elif score_value <= -3:
         label = "Downtrend yếu"
     else:
         return ""  # Không có xu hướng rõ ràng
@@ -42,23 +42,21 @@ def get_trend_label(data):
 def score_trend(ema20, ema50, ema90, rsi, macd, signal):
     # EMA score
     if ema20 > ema50 > ema90:
-        ema_score = 6
-    elif ema20 > ema50 and abs(ema50 - ema90) <= (0.01 * ema90):  # gần bằng EMA90
-        ema_score = 4
-    elif abs(ema20 - ema50) <= (0.01 * ema50) and abs(ema50 - ema90) <= (0.01 * ema90):
-        ema_score = 0
-    elif ema20 < ema50 and abs(ema50 - ema90) <= (0.01 * ema90):
-        ema_score = -4
+        ema_score = 2
+    elif ema90 < ema20< ema50 :
+        ema_score = 1
+    elif ema90> ema20 > ema50:
+        ema_score = -1
     elif ema20 < ema50 < ema90:
-        ema_score = -6
+        ema_score = -2
     else:
         ema_score = 0
 
     # RSI score
     if rsi > 60:
-        rsi_score = 2
+        rsi_score = 1
     elif rsi < 40:
-        rsi_score = -2
+        rsi_score = -1
     else:
         rsi_score = 0
 
@@ -68,12 +66,11 @@ def score_trend(ema20, ema50, ema90, rsi, macd, signal):
         macd_score = 2
     elif macd < signal and macd < 0:
         macd_score = -2
-    else:
-        if macd > signal or macd > 0:
+    elif macd > signal or macd < 0:
             macd_score = 1
-        elif macd < signal or macd < 0:
+    elif macd < signal or macd > 0:
             macd_score = -1
-        else:
+    else:
             macd_score = 0
 
     total = ema_score + rsi_score + macd_score  # range approx -10..+10
