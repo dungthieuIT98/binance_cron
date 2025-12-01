@@ -6,7 +6,7 @@ from crawlData import fetch_klines, SYMBOLS
 from calculateData import process_file, get_trend_label
 from notify import tele_notification
 
-SLEEP_INTERVAL =  60 * 60 - 2  # 4h = 14400 giây
+SLEEP_INTERVAL =  4* 60 * 60 - 2  # 4h = 14400 giây
 # SLEEP_INTERVAL = 60 - 2  # 4h = 14400 giây
 
 results = {}
