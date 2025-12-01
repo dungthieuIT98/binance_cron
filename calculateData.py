@@ -31,7 +31,7 @@ def get_trend_label(data):
     else:
         return ""  # Không có xu hướng rõ ràng
     
-    if current_rsi > 70 or current_rsi < 30:
+    if  float(current_rsi) > 70 or  float(current_rsi) < 30:
         label += f"\nCảnh báo RSI: {current_rsi}"
 
     # Format message với danh sách old_scores
