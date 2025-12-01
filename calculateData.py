@@ -1,5 +1,3 @@
-import pandas as pd
-
 RSI_PERIOD = 14
 def get_trend_label(data):
     # Kiểm tra nến cuối có trend_score không
