@@ -14,14 +14,12 @@ def get_trend_label(data):
             candle = data[-i]
             if "trend_score" in candle and candle["trend_score"] != "":
                 old_scores.append(str(candle["trend_score"]))
-                rsi = candle.get("rsi14", None)
-                if isinstance(rsi, (int, float)):
-                    rsi = round(rsi, 2)   # làm tròn 2 chữ số
-                else:
-                    rsi = "N/A"
-                old_rsis.append(str(rsi))
-    
-    # Phân loại xu hướng
+                rsi_value = candle.get("rsi14", None)
+                rsi_value = float(rsi_value)
+                rsi_value = round(rsi_value) 
+                old_rsis.append(str(rsi_value))
+
+    # Phân loại xu hướng    
     try:
         score_value = float(current_score) if isinstance(current_score, str) else current_score
     except:
@@ -42,8 +40,8 @@ def get_trend_label(data):
         label += f"\nCảnh báo RSI: {current_rsi}"
 
     # Format message với danh sách old_scores
-    old_scores_str = ",".join(old_scores) if old_scores else ""
-    old_rsis_str = ",".join(old_rsis) if old_rsis else ""
+    old_scores_str = ", ".join(old_scores) if old_scores else ""
+    old_rsis_str = ", ".join(old_rsis) if old_rsis else ""
     return f"{symbol}: {label}\n ==>RSI: {old_rsis_str}\n ==> History: {old_scores_str}\n"
 
  
