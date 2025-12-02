@@ -1,18 +1,20 @@
 RSI_PERIOD = 14
 def get_trend_label(data):
     # Kiểm tra nến cuối có trend_score không
-    last_candle = data[-1]
+    last_candle = data[-2]
     # Lấy symbol và current score
     symbol = last_candle.get("symbol", "N/A")
     current_score = last_candle["trend_score"]
     current_rsi = last_candle.get("rsi14", "N/A")
     # Lấy danh sách old_scores của 6 ngày trước (từ -7 đến -2)
     old_scores = []
+    old_rsis = []
     for i in range(7, 1, -1): 
         if len(data) >= i:
             candle = data[-i]
             if "trend_score" in candle and candle["trend_score"] != "":
                 old_scores.append(str(candle["trend_score"]))
+                old_rsis.append(str(candle.get("rsi14", "N/A")))
     
     # Phân loại xu hướng
     try:
@@ -36,7 +38,8 @@ def get_trend_label(data):
 
     # Format message với danh sách old_scores
     old_scores_str = ",".join(old_scores) if old_scores else ""
-    return f"{symbol}: {label} \n ==> History: {old_scores_str},{current_score}\n"
+    old_rsis_str = ",".join(old_rsis) if old_rsis else ""
+    return f"{symbol}: {label}\n ==>RSI: {old_rsis_str}\n ==> History: {old_scores_str}\n"
 
  
 def score_trend(ema20, ema50, ema90, rsi, macd, signal):
