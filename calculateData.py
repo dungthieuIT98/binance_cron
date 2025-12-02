@@ -14,7 +14,12 @@ def get_trend_label(data):
             candle = data[-i]
             if "trend_score" in candle and candle["trend_score"] != "":
                 old_scores.append(str(candle["trend_score"]))
-                old_rsis.append(str(candle.get("rsi14", "N/A")))
+                rsi = candle.get("rsi14", None)
+                if isinstance(rsi, (int, float)):
+                    rsi = round(rsi, 2)   # làm tròn 2 chữ số
+                else:
+                    rsi = "N/A"
+                old_rsis.append(str(rsi))
     
     # Phân loại xu hướng
     try:
