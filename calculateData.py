@@ -35,7 +35,7 @@ def get_trend_label(data):
     elif score_value <= -3:
         label = "Downtrend yếu"
     else:
-         label = "không rõ xu hướng"
+         label = "NULL"
     
     if  float(current_rsi) > 70 or  float(current_rsi) < 30:
         label += f"\nCảnh báo RSI: {current_rsi}"
