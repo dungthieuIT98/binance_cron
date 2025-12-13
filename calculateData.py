@@ -6,6 +6,7 @@ def get_trend_label(data):
     symbol = last_candle.get("symbol", "N/A")
     current_score = last_candle["trend_score"]
     current_rsi = last_candle.get("rsi14", "N/A")
+    current_volume_ratio = last_candle.get("volume_ratio", "N/A")
     # Lấy danh sách old_scores của 6 ngày trước (từ -7 đến -2)
     old_scores = []
     old_rsis = []
@@ -34,10 +35,12 @@ def get_trend_label(data):
     elif score_value <= -3:
         label = "Downtrend yếu"
     else:
-        return ""  # Không có xu hướng rõ ràng
+         label = "không rõ xu hướng"
     
     if  float(current_rsi) > 70 or  float(current_rsi) < 30:
         label += f"\nCảnh báo RSI: {current_rsi}"
+    if  float(current_volume_ratio) > 2:
+        label += f"\nCảnh báo Volume cao: {current_volume_ratio}x"
 
     # Format message với danh sách old_scores
     old_scores_str = ", ".join(old_scores) if old_scores else ""
@@ -172,5 +175,27 @@ def process_file(data, symbol, periods=(20, 50, 90)):
             )
         else:
             row["trend_score"] = ""
-        
+    
+    add_volume_ratio(data)
+ 
+    return data
+
+# caculate avg vol 
+
+def add_volume_ratio(data, exclude_top=10):
+    """
+    Thêm cột volume_ratio = volume / trung bình volume (loại trừ top N cao nhất)
+    """
+    volumes = [float(d["volume"]) for d in data if d.get("volume")]
+    if not volumes:
+        return data
+
+    if len(volumes) > exclude_top:
+        volumes = sorted(volumes)[:-exclude_top]
+
+    avg_volume = sum(volumes) / len(volumes) if volumes else 0
+
+    for d in data:
+        d["volume_ratio"] = f"{(float(d['volume']) / avg_volume):.2f}" if d.get("volume") else ""
+    
     return data
