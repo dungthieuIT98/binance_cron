@@ -1,4 +1,5 @@
 RSI_PERIOD = 14
+
 def get_trend_label(data):
     # Kiểm tra nến cuối có trend_score không
     last_candle = data[-2]
@@ -27,25 +28,31 @@ def get_trend_label(data):
         return ""
     
     if score_value >= 5:
-        label = "UPTREND mạnh"
+        label = "<b>🔴 UPTREND mạnh</b>"
     elif score_value >= 3:
-        label = "Uptrend yếu"
+        label = "<b>Uptrend yếu</b>"
     elif score_value <= -5:
-        label = "DOWNTREND mạnh"
+        label = "<b>🔴 DOWNTREND mạnh</b>"
     elif score_value <= -3:
-        label = "Downtrend yếu"
+        label = "<b>Downtrend yếu</b>"
     else:
-         label = "NULL"
+         label = ""
     
-    if  float(current_rsi) > 70 or  float(current_rsi) < 30:
-        label += f"\nCảnh báo RSI: {current_rsi}"
-    if  float(current_volume_ratio) > 2:
-        label += f"\nCảnh báo Volume cao: {current_volume_ratio}x"
+    # check label có rỗng không
+    if label:    
+        # Format message với danh sách old_scores
+        old_scores_str = ", ".join(old_scores) if old_scores else ""
+        old_rsis_str = ", ".join(old_rsis) if old_rsis else ""
+        label += f"\n ==>RSI: {old_rsis_str}\n ==> History: {old_scores_str}"
 
-    # Format message với danh sách old_scores
-    old_scores_str = ", ".join(old_scores) if old_scores else ""
-    old_rsis_str = ", ".join(old_rsis) if old_rsis else ""
-    return f"{symbol}: {label}\n ==>RSI: {old_rsis_str}\n ==> History: {old_scores_str}\n"
+    if float(current_rsi) > 70 or float(current_rsi) < 30:
+        label += f"\n<b>⚠️ Cảnh báo RSI: {current_rsi}</b>"
+    if float(current_volume_ratio) > 2:
+        label += f"\n<b>⚠️ Cảnh báo Volume cao: {current_volume_ratio}x</b>"
+
+    if label:    
+        return f"{symbol}: {label}\n"
+    return ""
 
  
 def score_trend(ema20, ema50, ema90, rsi, macd, signal):

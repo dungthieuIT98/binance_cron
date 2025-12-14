@@ -18,10 +18,7 @@ def fetch_klines(symbol: str, interval: str = '1d', limit: int = 200):
     """
     
     # Map interval sang endpoint và aggregate value
-    if interval == '1h':
-        endpoint = 'histohour'
-        aggregate = 1
-    elif interval == '4h':
+    if interval == '4h':
         endpoint = 'histohour'
         aggregate = 4
     elif interval == '1d':
@@ -29,7 +26,7 @@ def fetch_klines(symbol: str, interval: str = '1d', limit: int = 200):
         aggregate = 1
     else:
         endpoint = 'histohour'
-        aggregate = 1
+        aggregate = 4
     
     base_url = f"https://min-api.cryptocompare.com/data/v2/{endpoint}"
     

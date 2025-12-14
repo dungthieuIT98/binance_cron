@@ -45,7 +45,7 @@ def job(symbol, interval_name, interval_str, limit):
 
 def send_aggregated_report_once():
 
-    aggregated_message = f"📊BÁO CÁO TỔNG HỢP NGÀY {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
+    aggregated_message = f"<b>📊BÁO CÁO TỔNG HỢP NGÀY {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</b>\n"
     aggregated_message += "="*40 + "\n"
     
     for symbol in SYMBOLS:
