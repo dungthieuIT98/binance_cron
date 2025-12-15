@@ -6,8 +6,7 @@ SYMBOLS = [
     "BTC",
     "ETH",
     "BNB",
-    "SOL",
-    "LINK","UNI","TON","DOT","AAVE","LTC"
+    "SOL"
 ]
 
 def fetch_klines(symbol: str, interval: str = '1d', limit: int = 200):
