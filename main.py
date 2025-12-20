@@ -2,12 +2,10 @@ import time
 import threading
 from datetime import datetime
 import pytz
-from crawlData import fetch_klines, SYMBOLS
-from calculateData import process_file, get_trend_label
-from notify import tele_notification
-
-SLEEP_INTERVAL =  4* 60 * 60 - 2  # 4h = 14400 giây
-# SLEEP_INTERVAL = 60 - 2  # 4h = 14400 giây
+from api.crawlData import fetch_klines, SYMBOLS
+from service.calculateData import process_file, get_trend_label
+from notify.notify import tele_notification
+from config.enums import SLEEP_INTERVAL_TRADING
 
 results = {}
 results_lock = threading.Lock()
@@ -41,7 +39,7 @@ def job(symbol, interval_name, interval_str, limit):
             import traceback
             traceback.print_exc()
         
-        time.sleep(SLEEP_INTERVAL)
+        time.sleep(SLEEP_INTERVAL_TRADING)
 
 def send_aggregated_report_once():
 

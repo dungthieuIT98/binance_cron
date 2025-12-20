@@ -51,7 +51,7 @@ def get_trend_label(data):
         label += f"\n<b>⚠️ Cảnh báo Volume cao: {current_volume_ratio}x</b>"
 
     if label:    
-        return f"{symbol}: {label}\n"
+        return f"👉{symbol}: {label}\n"
     return ""
 
  
@@ -180,7 +180,7 @@ def process_file(data, symbol, periods=(20, 50, 90)):
                 float(row["macd"]),
                 float(row["macd_signal"])
             )
-        else:
+        else:   
             row["trend_score"] = ""
     
     add_volume_ratio(data)
@@ -189,20 +189,27 @@ def process_file(data, symbol, periods=(20, 50, 90)):
 
 # caculate avg vol 
 
-def add_volume_ratio(data, exclude_top=10):
+def add_volume_ratio(data, lookback_days=50):
     """
-    Thêm cột volume_ratio = volume / trung bình volume (loại trừ top N cao nhất)
+    Thêm cột volume_ratio = volume / trung bình volume (dựa trên 50 ngày trước đó)
     """
-    volumes = [float(d["volume"]) for d in data if d.get("volume")]
-    if not volumes:
-        return data
+    for i, d in enumerate(data):
+        if i < lookback_days:
+            # Không đủ dữ liệu để tính trung bình
+            d["volume_ratio"] = ""
+            continue
 
-    if len(volumes) > exclude_top:
-        volumes = sorted(volumes)[:-exclude_top]
+        # Lấy 50 ngày trước đó
+        recent_volumes = [float(data[j]["volume"]) for j in range(i - lookback_days, i) if data[j].get("volume")]
+        if not recent_volumes:
+            d["volume_ratio"] = ""
+            continue
 
-    avg_volume = sum(volumes) / len(volumes) if volumes else 0
+        avg_volume = sum(recent_volumes) / len(recent_volumes)
 
-    for d in data:
-        d["volume_ratio"] = f"{(float(d['volume']) / avg_volume):.2f}" if d.get("volume") else ""
-    
+        if d.get("volume") and (float(d['volume']) / avg_volume) > 1:
+            d["volume_ratio"] = f"{(float(d['volume']) / avg_volume):.2f}"
+        else:
+            d["volume_ratio"] = 0
+
     return data
