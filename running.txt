@@ -9,7 +9,7 @@ pip install -r requirements.txt
 
 => chạy nền ứng dụng
 nohup python3 main.py > output.log 2>&1 &
-
+nohup python3 DailyStock.py > output.log 2>&1 &
 => kiểm tra chạy nền 
 ps aux | grep main.py
 tail -f output.log

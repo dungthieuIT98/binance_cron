@@ -17,9 +17,14 @@ def job(symbol, interval_name, interval_str, limit):
     while True:
         try:
             print(f"\n Đang xử lý {symbol}...")
+                
+            # Fetch and process data
+            # endtime = datetime(2025, 12, 20, 15, 0)  
+            # toTs = int(endtime.timestamp())
+            # klines = fetch_klines(symbol, interval_str, limit,toTs)
             klines = fetch_klines(symbol, interval_str, limit)
             
-            processed_data = process_file(klines, symbol)
+            processed_data = process_file(klines, (20, 50, 90),20)
             message = get_trend_label(processed_data)
             
             with results_lock:
@@ -42,7 +47,7 @@ def job(symbol, interval_name, interval_str, limit):
         time.sleep(SLEEP_INTERVAL_TRADING)
 
 def send_aggregated_report_once():
-
+    print("\n Gửi báo cáo tổng hợp...")
     aggregated_message = f"<b>📊BÁO CÁO TỔNG HỢP NGÀY {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</b>\n"
     aggregated_message += "="*40 + "\n"
     

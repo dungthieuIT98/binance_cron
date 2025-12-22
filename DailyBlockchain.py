@@ -2,9 +2,10 @@ from datetime import datetime
 import pandas as pd
 import time
 import threading
+import os
 
 from service.calculateData import process_file
-from service.caculate_ckvn import calculate_ckvn
+from service.caculate_ckvn import calculate_coin
 from api.crawlData import fetch_klines
 from notify.notify import tele_notification
 from config.enums import Symbols, SLEEP_INTERVAL
@@ -14,42 +15,63 @@ results = {}
 results_lock = threading.Lock()
 completed_count = 0
 
+def save_dataframe_to_excel(df, symbol):
+    """Save DataFrame to Excel file in the data directory."""
+    try:
+        output_dir = "data"
+        os.makedirs(output_dir, exist_ok=True)
+        
+        filename = f"processed_data_{symbol}.xlsx"
+        output_file = os.path.join(output_dir, filename)
+        
+        df.to_excel(output_file, index=False)
+        print(f"Data saved to Excel: {output_file}")
+        return output_file
+    except Exception as e:
+        print(f"Error saving Excel file for {symbol}: {e}")
+        return None
+
 def process_symbol_data(symbol):
     """Process data for a single symbol in a continuous loop."""
     global completed_count
 
-    while True:
-        try:
-            print(f"\nProcessing {symbol}...")
-            
-            # Fetch and process data
-            raw_data = fetch_klines(symbol, '1d', 300)
-            processed_data = process_file(raw_data, symbol)
-            processed_data = calculate_ckvn(processed_data)
+    # while True:
+    try:
+        print(f"\nProcessing {symbol}...")
+        
+        # Fetch and process data
+        endtime = datetime(2025, 7, 16)   # 30/07/2025
+        toTs = int(endtime.timestamp())
+        raw_data = fetch_klines(symbol, '4h', 1000,toTs)
+        processed_data = process_file(raw_data, (20, 50, 90),20)
+        processed_data = calculate_coin(processed_data)
 
-            # Create DataFrame with only required columns
-            columns_to_keep = [
-                "timestamp", "close", "symbol", "trend_score", 
-                "show_indicator", "rsi_high", "vol_high", "macd_down"
-            ]
-            df = pd.DataFrame(processed_data)[columns_to_keep]
+        # Create DataFrame with only required columns
+        columns_to_keep = [
+            "timestamp", "close", "symbol", "trend_score", 
+            "show_indicator", "rsi_high", "vol_high", "macd_down"
+        ]
+        df = pd.DataFrame(processed_data)[columns_to_keep]
+        
+        # Save DataFrame to Excel
+        save_dataframe_to_excel(df, symbol)
 
-            # Update results
-            with results_lock:
-                results[symbol] = {
-                    "message": extract_message_from_dataframe(df),
-                    "timestamp": datetime.now()
-                }
-                completed_count += 1
+        # Update results
+        with results_lock:
+            results[symbol] = {
+                "message": extract_message_from_dataframe(df),
+                "timestamp": datetime.now()
+            }
+            completed_count += 1
 
-                if completed_count == len(symbols):
-                    send_aggregated_report()
-                    completed_count = 0
+            if completed_count == len(symbols):
+                send_aggregated_report()
+                completed_count = 0
 
-        except Exception as e:
-            print(f"Error processing {symbol}: {e}")
+    except Exception as e:
+        print(f"Error processing {symbol}: {e}")
 
-        time.sleep(SLEEP_INTERVAL)
+        # time.sleep(SLEEP_INTERVAL)
 
 def send_aggregated_report():
     """Send aggregated report for all processed symbols."""

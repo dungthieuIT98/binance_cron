@@ -35,7 +35,7 @@ class DailyStockAnalyzer:
                 # Fetch and process stock data
                 data = fetcher.fetch_stock_data(symbol, from_date, to_date, 1, 1000)
                 data.reverse()  # Reverse for chronological order
-                processed_data = process_file(data, symbol)
+                processed_data = process_file(data, (20, 50, 90),50)
                 processed_data = calculate_ckvn(processed_data)
 
                 # Create DataFrame with required columns

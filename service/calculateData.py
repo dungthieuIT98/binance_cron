@@ -47,9 +47,11 @@ def get_trend_label(data):
 
     if float(current_rsi) > 70 or float(current_rsi) < 30:
         label += f"\n<b>⚠️ Cảnh báo RSI: {current_rsi}</b>"
-    if float(current_volume_ratio) > 2:
-        label += f"\n<b>⚠️ Cảnh báo Volume cao: {current_volume_ratio}x</b>"
 
+    if float(current_volume_ratio) > 2 and float(current_rsi) > 60:
+        label += f"\n<b>⚠️🟢Cảnh báo tăng Volume cao: {current_volume_ratio}x</b>"
+    elif float(current_volume_ratio) > 2 and float(current_rsi) < 40:
+        label += f"\n<b>⚠️🔴Cảnh báo Volume cao: {current_volume_ratio}x</b>"
     if label:    
         return f"👉{symbol}: {label}\n"
     return ""
@@ -137,7 +139,7 @@ def calculate_macd(prices):
     hist = [a - b for a, b in zip(macd[-len(signal):], signal)] if signal else []
     return macd, signal, hist
 
-def process_file(data, symbol, periods=(20, 50, 90)):
+def process_file(data,periods=(20, 50, 90), ma_volume_period=20):
     """Tính EMA, RSI, MACD trên dữ liệu trong memory, không ghi CSV"""
     if not data or "close" not in data[0]:
         print("Dữ liệu không hợp lệ hoặc thiếu cột 'close'")
@@ -183,13 +185,13 @@ def process_file(data, symbol, periods=(20, 50, 90)):
         else:   
             row["trend_score"] = ""
     
-    add_volume_ratio(data)
+    add_volume_ratio(data,ma_volume_period)
  
     return data
 
 # caculate avg vol 
 
-def add_volume_ratio(data, lookback_days=50):
+def add_volume_ratio(data, lookback_days=20):
     """
     Thêm cột volume_ratio = volume / trung bình volume (dựa trên 50 ngày trước đó)
     """
