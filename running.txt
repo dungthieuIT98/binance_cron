@@ -8,11 +8,13 @@ pip install --upgrade pip
 pip install -r requirements.txt
 
 => chạy nền ứng dụng
-nohup python3 main.py > output.log 2>&1 &
-nohup python3 DailyStock.py > output.log 2>&1 &
+nohup python3 main.py > main_output.log 2>&1 &
+nohup python3 DailyStock.py > stock_output.log 2>&1 &
+
 => kiểm tra chạy nền 
-ps aux | grep main.py
-tail -f output.log
+ps aux | grep python3
+tail -f main_output.log     # Theo dõi log crypto
+tail -f stock_output.log    # Theo dõi log stock
  
  => KILL TIẾN TRÌNH 
 kill -9 27808
