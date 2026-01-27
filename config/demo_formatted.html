@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Detail Page - Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #ffffff;
+            color: #000000;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 0 80px;
+        }
+
+        /* Navigation */
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 56px 80px;
+            background: #fff;
+        }
+
+        .site-name {
+            font-size: 20px;
+            font-weight: 500;
+        }
+
+        .nav-items {
+            display: flex;
+            gap: 48px;
+            align-items: center;
+        }
+
+        .nav-items a {
+            font-size: 20px;
+            font-weight: 500;
+            color: #000;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: #000;
+            color: #fff;
+            padding: 14px 24px;
+            border-radius: 8px;
+            font-weight: 500;
+            text-decoration: none;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        /* Product Detail Section */
+        .product-detail {
+            display: grid;
+            grid-template-columns: 625px 1fr;
+            gap: 120px;
+            padding: 164px 80px;
+        }
+
+        .product-image {
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .product-image img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .product-info {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .product-name {
+            font-size: 40px;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .subheading {
+            font-size: 24px;
+            color: #828282;
+        }
+
+        .price {
+            font-size: 24px;
+            font-weight: 500;
+        }
+
+        .description {
+            font-size: 20px;
+            color: #828282;
+        }
+
+        .btn-add-cart {
+            background: #000;
+            color: #fff;
+            padding: 14px 24px;
+            border-radius: 8px;
+            font-weight: 500;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        .fine-print {
+            font-size: 16px;
+            font-weight: 500;
+            color: #828282;
+        }
+
+        /* Related Products */
+        .related-section {
+            padding: 0 80px 80px;
+        }
+
+        .section-title {
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 40px;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+
+        .product-card {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .product-card-image {
+            border-radius: 8px;
+            overflow: hidden;
+            aspect-ratio: 16/9;
+        }
+
+        .product-card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .product-card-title {
+            font-size: 24px;
+            font-weight: 500;
+        }
+
+        .product-card-desc {
+            font-size: 20px;
+            font-weight: 500;
+            color: #828282;
+        }
+
+        .product-card-price {
+            font-size: 20px;
+            font-weight: 500;
+        }
+
+        /* Footer */
+        .footer {
+            background: #fff;
+            padding: 48px 80px;
+            border-top: 3px solid #E6E6E6;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(3, 187px);
+            gap: 219px;
+            justify-content: flex-end;
+            margin-bottom: 40px;
+        }
+
+        .footer-column {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .footer-topic {
+            font-weight: 500;
+        }
+
+        .footer-link {
+            font-weight: 500;
+            color: #444444;
+            text-decoration: none;
+        }
+
+        .footer-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-site-name {
+            font-size: 24px;
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 16px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navigation">
+        <div class="site-name">Site name</div>
+        <div class="nav-items">
+            <a href="#">Page</a>
+            <a href="#">Page</a>
+            <a href="#">Page</a>
+            <a href="#" class="btn-primary">Button</a>
+        </div>
+    </nav>
+
+    <!-- Product Detail -->
+    <section class="product-detail">
+        <div class="product-image">
+            <img src="https://framerusercontent.com/images/XCBXepcUxkOUbavVBgECLhjqs4I.png" alt="Product Image">
+        </div>
+        
+        <div class="product-info">
+            <h1 class="product-name">Product name</h1>
+            <p class="subheading">Subheading</p>
+            <p class="price">$10.99</p>
+            <p class="description">Body text for describing what this product is and why this product is simply a must-buy.</p>
+            <button class="btn-add-cart">Add to cart</button>
+            <p class="fine-print">Text box for additional details or fine print</p>
+        </div>
+    </section>
+
+    <!-- Related Products -->
+    <section class="related-section">
+        <h2 class="section-title">Related products</h2>
+        
+        <div class="product-grid">
+            <div class="product-card">
+                <div class="product-card-image">
+                    <img src="https://framerusercontent.com/images/Wg1CbCyvQcyWrU5nOjZhoFEg.png" alt="Product 1">
+                </div>
+                <div>
+                    <h3 class="product-card-title">Product</h3>
+                    <p class="product-card-desc">Description of first product</p>
+                    <p class="product-card-price">$10.99</p>
+                </div>
+            </div>
+
+            <div class="product-card">
+                <div class="product-card-image">
+                    <img src="https://framerusercontent.com/images/qndidjFlFNqBM5jGREaIXBvYfJ8.png" alt="Product 2">
+                </div>
+                <div>
+                    <h3 class="product-card-title">Product</h3>
+                    <p class="product-card-desc">Description of second product</p>
+                    <p class="product-card-price">$10.99</p>
+                </div>
+            </div>
+
+            <div class="product-card">
+                <div class="product-card-image">
+                    <img src="https://framerusercontent.com/images/D79VaxFLRRVTYlAjfyetdGMOpZo.png" alt="Product 3">
+                </div>
+                <div>
+                    <h3 class="product-card-title">Product</h3>
+                    <p class="product-card-desc">Description of third product</p>
+                    <p class="product-card-price">$10.99</p>
+                </div>
+            </div>
+
+            <div class="product-card">
+                <div class="product-card-image">
+                    <img src="https://framerusercontent.com/images/CuI2XTLB64ud8Q35FpLxM9tIoU.png" alt="Product 4">
+                </div>
+                <div>
+                    <h3 class="product-card-title">Product</h3>
+                    <p class="product-card-desc">Description of fourth product</p>
+                    <p class="product-card-price">$10.99</p>
+                </div>
+            </div>
+
+            <div class="product-card">
+                <div class="product-card-image">
+                    <img src="https://framerusercontent.com/images/9o8Qhvinsu9G2OcGCSlYkJfRMiU.png" alt="Product 5">
+                </div>
+                <div>
+                    <h3 class="product-card-title">Product</h3>
+                    <p class="product-card-desc">Description of fifth product</p>
+                    <p class="product-card-price">$10.99</p>
+                </div>
+            </div>
+
+            <div class="product-card">
+                <div class="product-card-image">
+                    <img src="https://framerusercontent.com/images/bxz3TJmP5k9h1haviU5RYIEJOxI.png" alt="Product 6">
+                </div>
+                <div>
+                    <h3 class="product-card-title">Product</h3>
+                    <p class="product-card-desc">Description of sixth product</p>
+                    <p class="product-card-price">$10.99</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-column">
+                <div class="footer-topic">Topic</div>
+                <a href="#" class="footer-link">Page</a>
+                <a href="#" class="footer-link">Page</a>
+                <a href="#" class="footer-link">Page</a>
+            </div>
+            
+            <div class="footer-column">
+                <div class="footer-topic">Topic</div>
+                <a href="#" class="footer-link">Page</a>
+                <a href="#" class="footer-link">Page</a>
+                <a href="#" class="footer-link">Page</a>
+            </div>
+            
+            <div class="footer-column">
+                <div class="footer-topic">Topic</div>
+                <a href="#" class="footer-link">Page</a>
+                <a href="#" class="footer-link">Page</a>
+                <a href="#" class="footer-link">Page</a>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <div class="footer-site-name">Site name</div>
+            <div class="social-icons">
+                <!-- Social media icons would go here -->
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

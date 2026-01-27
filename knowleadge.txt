@@ -1,3 +1,21 @@
+** trend leader ***
+Vol cao ≥ 5–10 phiên
+✔ Giá giữ trên EMA50
+✔ giá phải chênh 10 - 20% so với lúc bắt đầu vol
+✔ EMA50 cong lên, EMA90 phẳng
+✔ Đáy sau cao hơn đáy trước
+✔ RSI từ <40 → giữ trên 50
+
+
+** DOWN REND LEADER **
+-HL - HL
+-MACD ÂM
+-RSI LOANH QUANH 3X-4X
+- THIẾU VOL , ĐA PHẦN CÓ VOL Ở PHIÊN GIẢM MẠNH
+
+
+
+
 sudo dnf install git -y
 git clone https://github.com/dungthieuIT98/binance_cron.git
 
@@ -8,11 +26,14 @@ pip install --upgrade pip
 pip install -r requirements.txt
 
 => chạy nền ứng dụng
+
 nohup python3 main.py > main_output.log 2>&1 &
 nohup python3 DailyStock.py > stock_output.log 2>&1 &
 
 => kiểm tra chạy nền 
+
 ps aux | grep python3
+
 tail -f main_output.log     # Theo dõi log crypto
 tail -f stock_output.log    # Theo dõi log stock
  

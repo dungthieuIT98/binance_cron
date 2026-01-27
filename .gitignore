@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+*.out
+*.err
+main_output.log
+stock_output.log
+main_error.log
+stock_error.log
+nohup.out
+
+# Data
+data/
+*.xlsx
+*.csv
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Credentials (nếu tách ra file riêng)
+.env
+config.ini
+credentials.json

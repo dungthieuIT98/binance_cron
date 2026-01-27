@@ -6,7 +6,7 @@ from api.CrawlDataCK import StockDataFetcher
 from config.enums import SYMBOL_CK, SLEEP_INTERVAL
 from notify.notify import tele_notification
 from service.calculateData import process_file
-from service.caculate_ckvn import calculate_ckvn
+from service.calculateCkvn import calculate_stock_indicators
 
 
 class DailyStockAnalyzer:
@@ -19,15 +19,17 @@ class DailyStockAnalyzer:
 
     @staticmethod
     def calculate_date_range():
-        """Calculate date range for stock data fetching (last 1200 days)."""
-        to_date = datetime.now().strftime('%d/%m/%Y')
-        from_date = (datetime.now() - timedelta(days=200)).strftime('%d/%m/%Y')
+        """Calculate date range for stock data fetching (from 2020 to now)."""
+        from_date_obj = datetime(2020, 1, 1)
+        to_date_obj = datetime.now()
+        from_date = from_date_obj.strftime('%d/%m/%Y')
+        to_date = to_date_obj.strftime('%d/%m/%Y')
         return from_date, to_date
 
     def process_symbol(self, symbol):
         """Process a single stock symbol continuously with while loop."""
-        while True:
-            try:
+        # while True:  # Comment để chạy 1 lần, bỏ comment để loop liên tục
+        try:
                 print(f"\nProcessing {symbol}...")
                 fetcher = StockDataFetcher()
                 from_date, to_date = self.calculate_date_range()
@@ -35,17 +37,11 @@ class DailyStockAnalyzer:
                 # Fetch and process stock data
                 data = fetcher.fetch_stock_data(symbol, from_date, to_date, 1, 1000)
                 data.reverse()  # Reverse for chronological order
-                processed_data = process_file(data, (20, 50, 90),50)
-                processed_data = calculate_ckvn(processed_data)
+                processed_data = process_file(data, (20, 50, 90), 50)
+                processed_data = calculate_stock_indicators(processed_data)  # Auto saves to Excel
 
-                # Create DataFrame with required columns
+                # Create DataFrame for analysis
                 df = pd.DataFrame(processed_data)
-                columns_to_keep = [
-                    "timestamp", "close", "symbol", "trend_score", "show_indicator",
-                    "rsi_high", "vol_high", "ema_20", "ema_50", "ema_90"
-                ]
-                df = df[columns_to_keep]
-                
                 # Store results
                 with self.results_lock:
                     self.results[symbol] = {
@@ -59,10 +55,12 @@ class DailyStockAnalyzer:
                         self._send_aggregated_report()
                         self.completed_count = 0
                         
-            except Exception as e:
-                print(f"Error processing {symbol}: {e}")
-            
-            time.sleep(SLEEP_INTERVAL)
+        except Exception as e:
+            print(f"Error processing {symbol}: {e}")
+            import traceback
+            traceback.print_exc()
+        
+        # time.sleep(SLEEP_INTERVAL)  # Bỏ comment nếu dùng while True
 
     def _extract_message_from_dataframe(self, df):
         """Extract trend analysis message from processed dataframe."""
@@ -80,40 +78,47 @@ class DailyStockAnalyzer:
     
     def _analyze_market_conditions(self, recent_data, prev_day):
         """Analyze market conditions and return condition flags."""
-        return {
-            'ema_uptrend': (recent_data['ema_50'].astype(float) < recent_data['close'].astype(float)).sum() >= 3,
-            'vol_high': (recent_data['vol_high'].astype(float) > 1.2).sum() >= 4,
-            'vol_super_high': (recent_data['vol_high'].astype(float) > 1.9).sum() >= 1,
-            'rsi_high': (recent_data['rsi_high'].astype(float) > 50).all() and (recent_data['rsi_high'].astype(float) > 65).sum() >= 2,
-            'vol_trend_leader': (recent_data['vol_high'].astype(float) > 1.5).sum() >= 4 and (recent_data['vol_high'].astype(float) > 2.5).sum() >= 1,
-            'rsi_trend_leader': (recent_data['rsi_high'].astype(float) > 65).all() and (recent_data['rsi_high'].astype(float) > 70).sum() >= 3,
-            'highest': float(prev_day['rsi_high']) > 60 and float(prev_day['vol_high']) > 2
-        }
+        try:
+            # Replace empty strings with 0 before converting to float
+            ema_50 = recent_data['ema_50'].replace('', 0).astype(float)
+            close = recent_data['close'].replace('', 0).astype(float)
+            rsi_high = recent_data['rsi_high'].replace('', 0).astype(float)
+            prev_rsi = float(prev_day['rsi_high']) if prev_day['rsi_high'] != '' else 0
+            
+            return {
+                'ema_uptrend': (ema_50 < close).sum() >= 3,
+                'rsi_high': (rsi_high > 50).all() and (rsi_high > 65).sum() >= 2,
+                'rsi_trend_leader': (rsi_high > 65).all() and (rsi_high > 70).sum() >= 3,
+                'highest': prev_rsi > 60
+            }
+        except Exception as e:
+            print(f"⚠️ Error analyzing conditions: {e}")
+            return {
+                'ema_uptrend': False,
+                'rsi_high': False,
+                'rsi_trend_leader': False,
+                'highest': False
+            }
     
     def _generate_analysis_message(self, symbol, recent_data, conditions):
         """Generate analysis message based on market conditions."""
         message = ""
         rsi_values = recent_data['rsi_high'].tolist()
-        vol_values = recent_data['vol_high'].tolist()
         
-        if conditions['vol_trend_leader'] and conditions['rsi_trend_leader']:
+        if conditions['rsi_trend_leader']:
             message = f"👉<b>{symbol} 🟢 Strong Trend Leader.</b>"
-        elif (conditions['ema_uptrend'] and conditions['vol_high'] and conditions['rsi_high']):
-            if conditions['vol_super_high']:
-                message = f"👉<b>{symbol} Strong Uptrend.</b>"
-            else:
-                message = f"👉{symbol} Uptrend."
+        elif (conditions['ema_uptrend'] and conditions['rsi_high']):
+            message = f"👉{symbol} Uptrend."
             
             if conditions['highest']:
                 message += "🟢Highest."
         else:
             return "" 
             
-        message += f"\nRSI: {rsi_values}\nVol: {vol_values}\n"
+        message += f"\nRSI: {rsi_values}\n"
         return message
 
     def _send_aggregated_report(self):
-        """Send aggregated report via Telegram notification."""
         current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         aggregated_message = f"<b>📈 Daily Stock Report {current_time}</b>\n"
         aggregated_message += "=" * 40 + "\n"
@@ -124,10 +129,10 @@ class DailyStockAnalyzer:
                 aggregated_message += f"{self.results[symbol]['message']}\n"
 
         # Send notification if there's meaningful content
-        if aggregated_message.count('\n') > 2:
-            tele_notification(aggregated_message)
-        else:
-            print("\nNo significant stock data to send in the report.")
+        # if aggregated_message.count('\n') > 2:
+            # tele_notification(aggregated_message)
+        # else:
+        #     print("\nNo significant stock data to send in the report.")
 
     def run_daily_analysis(self):
         """Start continuous stock analysis with threads for all symbols."""

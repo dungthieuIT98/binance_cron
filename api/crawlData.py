@@ -1,15 +1,7 @@
 import requests
 from datetime import datetime
-from config.enums import SYMBOLS
-
 def fetch_klines(symbol: str, interval: str = '1d', limit: int = 200, to_timestamp: int = None):
-    """
-    Lấy dữ liệu klines từ CryptoCompare API và trả về list of dicts.
-    Mỗi dict gồm: timestamp, open, high, low, close, volume, symbol
-    Hỗ trợ các interval: 1h, 4h, 1d
-    """
-    
-    # Map interval sang endpoint và aggregate value
+
     if interval == '4h':
         endpoint = 'histohour'
         aggregate = 4
@@ -54,15 +46,6 @@ def fetch_klines(symbol: str, interval: str = '1d', limit: int = 200, to_timesta
             })
         return result
         
-    except requests.exceptions.Timeout:
-        print(f" Timeout khi lấy dữ liệu {symbol}")
-        return []
-    except requests.exceptions.RequestException as e:
-        print(f" Lỗi request cho {symbol}: {e}")
-        return []
-    except KeyError as e:
-        print(f" Lỗi parse data cho {symbol}: {e}")
-        return []
     except Exception as e:
         print(f" Lỗi không xác định cho {symbol}: {e}")
         return []

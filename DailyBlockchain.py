@@ -5,10 +5,10 @@ import threading
 import os
 
 from service.calculateData import process_file
-from service.caculate_ckvn import calculate_coin
+from service.calculateCoin import calculate_crypto_indicators
 from api.crawlData import fetch_klines
 from notify.notify import tele_notification
-from config.enums import Symbols, SLEEP_INTERVAL
+from config.enums import SYMBOLS, SLEEP_INTERVAL
 
 # Global variables
 results = {}
@@ -39,12 +39,10 @@ def process_symbol_data(symbol):
     try:
         print(f"\nProcessing {symbol}...")
         
-        # Fetch and process data
-        endtime = datetime(2025, 7, 16)   # 30/07/2025
-        toTs = int(endtime.timestamp())
-        raw_data = fetch_klines(symbol, '4h', 1000,toTs)
+        # Fetch and process data (use None for latest data)
+        raw_data = fetch_klines(symbol, '4h', 1000, to_timestamp=None)
         processed_data = process_file(raw_data, (20, 50, 90),20)
-        processed_data = calculate_coin(processed_data)
+        processed_data = calculate_crypto_indicators(processed_data)
 
         # Create DataFrame with only required columns
         columns_to_keep = [
@@ -64,7 +62,7 @@ def process_symbol_data(symbol):
             }
             completed_count += 1
 
-            if completed_count == len(symbols):
+            if completed_count == len(SYMBOLS):
                 send_aggregated_report()
                 completed_count = 0
 
@@ -78,7 +76,7 @@ def send_aggregated_report():
     aggregated_message = f"<b>📊 Daily Report {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</b>\n"
     aggregated_message += "=" * 40 + "\n"
 
-    for symbol in symbols:
+    for symbol in SYMBOLS:
         if symbol in results and results[symbol]['message']:
             aggregated_message += f"{results[symbol]['message']}\n"
 
@@ -129,17 +127,14 @@ def extract_message_from_dataframe(df):
 
 def main():
     """Main function to start the daily blockchain data processing."""
-    global symbols
-    
-    symbols = [symbol.value for symbol in Symbols]
     print("Starting daily blockchain data fetcher...")
-    print(f"Processing {len(symbols)} symbols: {', '.join(symbols)}")
+    print(f"Processing {len(SYMBOLS)} symbols: {', '.join(SYMBOLS)}")
 
     try:
         threads = []
         
         # Start a thread for each symbol
-        for symbol in symbols:
+        for symbol in SYMBOLS:
             thread = threading.Thread(
                 target=process_symbol_data, 
                 args=(symbol,), 

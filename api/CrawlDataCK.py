@@ -71,7 +71,7 @@ class StockDataFetcher:
             'Symbol': symbol
         }
 
-        response = requests.get(url, headers=headers, params=params)
+        response = requests.get(url, headers=headers, params=params) 
         if response.status_code == 200:
             raw_data = response.json()
             return self.format_stock_data(raw_data, symbol)
